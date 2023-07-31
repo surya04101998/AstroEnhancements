@@ -1,26 +1,30 @@
 import requests
 import urllib.parse
-
+import json as JSON
 
 def make_api_call_with_query_params(base_url, params, headers):
     # Encode the query parameters
-    encoded_params = urllib.parse.urlencode(params)
-
+    # encoded_string = urllib.parse.quote(params["datetime"])
+    params_updated=params
+    # params_updated["datetime"]=encoded_string
     # Create the complete URL with encoded parameters
-    complete_url = f"{base_url}?{encoded_params}"
+    complete_url = base_url+"/planet-position"
 
     try:
         # Make the API call
-        response = requests.get(complete_url)
-
+        response = requests.get(complete_url,verify=False,headers=headers,params=params_updated)
+        print(complete_url)
+        print(headers)
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             return response.json()  # Assuming the response is in JSON format
         else:
-            print(f"Request failed with status code: {response.status_code}")
+            print(f"Request failed with status code: {response.json()}")
             return None
     except requests.RequestException as e:
         print(f"Error occurred during API call: {e}")
+        print(complete_url)
+        print(headers)
         return None
 
 
@@ -32,8 +36,9 @@ def generate_auth_token():
         "client_id": "03524bd0-47ab-4741-bb18-fb83317793db",
         "client_secret": "K1dUI2hK8A96maoHlLOniPFqEk93RUw0l4LMGasM"
     }
-    response = requests.post(url, json)
-    accessoken = "Bearer " + response['access_token']
+    response = requests.post(url, json,verify=False)
+    auth_response=JSON.loads(response.text)
+    accessoken = "Bearer " + auth_response['access_token']
     return {"Authorization": accessoken}
 
 
